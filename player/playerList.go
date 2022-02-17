@@ -18,7 +18,7 @@ type ListHandler struct {
 }
 
 func (handler *ListHandler) getNextItem() fyne.CanvasObject {
-	if handler.index >= len(handler.data.Players) {
+	if handler.index >= len(handler.data.Players) || len(handler.data.Players) == 0 {
 		if len(handler.data.Players) > 0 {
 			handler.index = 0
 		} else {
@@ -46,6 +46,7 @@ func (handler *ListHandler) getNextItem() fyne.CanvasObject {
 		widget.NewButton("x", func() {
 			handler.index = 0
 			handler.removePlayer(playerUuid)
+			handler.data.Parent.SaveData()
 			handler.ReloadList()
 		}),
 		onlineStatus,
