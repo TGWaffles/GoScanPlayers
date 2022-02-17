@@ -32,9 +32,7 @@ func (handler *ListHandler) updateItem(index int, object fyne.CanvasObject) {
 		playerNameLabel,
 		playerNoteLabel,
 	)
-	onlineStatus := widget.NewLabel(player.OnlineStatus)
-	onlineStatus.Alignment = fyne.TextAlignCenter
-	player.OnlineLabel = onlineStatus
+
 	deleteButton := widget.NewButton("x", func() {
 		handler.removePlayer(playerUuid)
 		handler.data.Parent.SaveData()
@@ -48,7 +46,7 @@ func (handler *ListHandler) updateItem(index int, object fyne.CanvasObject) {
 	)
 	playerContainer := object.(*fyne.Container)
 	playerContainer.Layout = newLayout
-	playerContainer.Objects = []fyne.CanvasObject{onlineStatus, nameWithNote, deleteButton}
+	playerContainer.Objects = []fyne.CanvasObject{player.OnlineLabel, nameWithNote, deleteButton}
 	playerContainer.Layout.Layout(playerContainer.Objects, playerContainer.Size())
 }
 
@@ -83,6 +81,11 @@ func GeneratePlayerList(data *storage.Data, window fyne.Window) *ListHandler {
 }
 
 func (handler *ListHandler) createNewList() *widget.List {
+	for _, player := range handler.data.Players {
+		onlineStatus := widget.NewLabel(player.OnlineStatus)
+		onlineStatus.Alignment = fyne.TextAlignCenter
+		player.OnlineLabel = onlineStatus
+	}
 	list := widget.NewList(
 		func() int {
 			return len(handler.data.Players)
@@ -112,12 +115,15 @@ func (handler *ListHandler) AddPlayer(username string, note string) {
 		popUp.Show()
 		return
 	}
+	onlineStatus := widget.NewLabel("NOT CHECKED")
+	onlineStatus.Alignment = fyne.TextAlignCenter
 	player := &models.Player{
 		Uuid:          usernames.Usernames[username],
 		Note:          note,
 		IsOnline:      false,
 		HasApiEnabled: true,
 		OnlineStatus:  "NOT CHECKED",
+		OnlineLabel:   onlineStatus,
 	}
 	handler.data.Players = append(handler.data.Players, player)
 	handler.refreshUuids()
@@ -125,11 +131,6 @@ func (handler *ListHandler) AddPlayer(username string, note string) {
 }
 
 func (handler *ListHandler) ReloadList() {
-	for index, element := range handler.master.Objects {
-		if element == handler.List {
-			handler.master.Objects[index] = handler.createNewList()
-		}
-	}
 	handler.List.Refresh()
 	handler.window.Content().Refresh()
 }
