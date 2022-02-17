@@ -25,6 +25,16 @@ func PostDataToURL(webhookUrl string, webhookContent string, player *models.Play
 		onlineText = "OFFLINE"
 		colour = 0xFF0000
 	}
+	var fields []models.Field
+	if player.Note != "" {
+		fields = []models.Field{
+			{
+				Name:   "Note",
+				Value:  player.Note,
+				Inline: false,
+			},
+		}
+	}
 	headUrl := fmt.Sprintf("https://cravatar.eu/helmavatar/%s/256.png", player.Uuid)
 	data := PostData{
 		Username: "Player Notifier",
@@ -38,6 +48,7 @@ func PostDataToURL(webhookUrl string, webhookContent string, player *models.Play
 				Url:     fmt.Sprintf("https://sky.shiiyu.moe/stats/%s", player.Uuid),
 			},
 			Colour: colour,
+			Fields: fields,
 		}},
 		AvatarUrl: headUrl,
 	}
