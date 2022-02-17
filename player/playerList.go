@@ -5,11 +5,11 @@ import (
 	"GoScanPlayers/storage"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 )
 
 type ListHandler struct {
-	index  int
 	data   *storage.Data
 	window fyne.Window
 	List   *widget.List
@@ -17,16 +17,12 @@ type ListHandler struct {
 	master *fyne.Container
 }
 
-func (handler *ListHandler) getNextItem() fyne.CanvasObject {
-	if handler.index >= len(handler.data.Players) || len(handler.data.Players) == 0 {
-		if len(handler.data.Players) > 0 {
-			handler.index = 0
-		} else {
-			return widget.NewLabel("")
-		}
-	}
-	player := handler.data.Players[handler.index]
-	handler.index++
+func (handler *ListHandler) createBlankItem() fyne.CanvasObject {
+	return container.NewBorder(nil, nil, widget.NewLabel("Username"), widget.NewButton("x", func() {}), widget.NewLabel("OFFLINE"))
+}
+
+func (handler *ListHandler) updateItem(index int, object fyne.CanvasObject) {
+	player := handler.data.Players[index]
 	playerUuid := player.Uuid
 	playerName := handler.uuids[playerUuid]
 	playerNameLabel := widget.NewLabel(playerName)
@@ -39,18 +35,21 @@ func (handler *ListHandler) getNextItem() fyne.CanvasObject {
 	onlineStatus := widget.NewLabel(player.OnlineStatus)
 	onlineStatus.Alignment = fyne.TextAlignCenter
 	player.OnlineLabel = onlineStatus
-	return container.NewBorder(
+	deleteButton := widget.NewButton("x", func() {
+		handler.removePlayer(playerUuid)
+		handler.data.Parent.SaveData()
+		handler.ReloadList()
+	})
+	newLayout := layout.NewBorderLayout(
 		nil,
 		nil,
 		nameWithNote,
-		widget.NewButton("x", func() {
-			handler.index = 0
-			handler.removePlayer(playerUuid)
-			handler.data.Parent.SaveData()
-			handler.ReloadList()
-		}),
-		onlineStatus,
+		deleteButton,
 	)
+	playerContainer := object.(*fyne.Container)
+	playerContainer.Layout = newLayout
+	playerContainer.Objects = []fyne.CanvasObject{onlineStatus, nameWithNote, deleteButton}
+	playerContainer.Layout.Layout(playerContainer.Objects, playerContainer.Size())
 }
 
 func (handler *ListHandler) removePlayer(uuid string) {
@@ -73,7 +72,6 @@ func (handler *ListHandler) refreshUuids() {
 
 func GeneratePlayerList(data *storage.Data, window fyne.Window) *ListHandler {
 	handler := &ListHandler{
-		index:  0,
 		data:   data,
 		window: window,
 	}
@@ -90,10 +88,10 @@ func (handler *ListHandler) createNewList() *widget.List {
 			return len(handler.data.Players)
 		},
 		func() fyne.CanvasObject {
-			return handler.getNextItem()
+			return handler.createBlankItem()
 		},
 		func(id widget.ListItemID, object fyne.CanvasObject) {
-			return
+			handler.updateItem(id, object)
 		},
 	)
 
@@ -127,7 +125,6 @@ func (handler *ListHandler) AddPlayer(username string, note string) {
 }
 
 func (handler *ListHandler) ReloadList() {
-	handler.index = len(handler.data.Players) - 1
 	for index, element := range handler.master.Objects {
 		if element == handler.List {
 			handler.master.Objects[index] = handler.createNewList()

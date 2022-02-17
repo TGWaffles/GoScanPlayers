@@ -58,6 +58,7 @@ func main() {
 	playerNameConfirm := widget.NewButton("Add Player", func() {
 		playerList.AddPlayer(playerNameEntry.Text, playerNoteEntry.Text)
 		playerNameEntry.Text = ""
+		playerNoteEntry.Text = ""
 		playerNameEntry.Refresh()
 		storageHandler.SaveData()
 	})
