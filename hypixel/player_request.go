@@ -3,8 +3,8 @@ package hypixel
 import (
 	"GoScanPlayers/player"
 	"GoScanPlayers/storage"
+	"GoScanPlayers/webhook"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -49,13 +49,15 @@ func (handler *RequestMaker) updatePlayersLoop() {
 		}
 		playerObject := handler.data.Players[handler.playerIndex]
 		loginText := handler.CheckPlayerOnline(playerObject.Uuid, handler.data.ApiKey)
-		playerObject.OnlineStatus = loginText
-		playerObject.IsOnline = loginText[:6] == "ONLINE"
+		if playerObject.OnlineStatus != loginText {
+			playerObject.OnlineStatus = loginText
+			playerObject.IsOnline = loginText[:6] == "ONLINE"
+			go webhook.PostDataToURL(handler.data.WebhookUrl, handler.data.WebhookContent, playerObject)
+		}
 		handler.data.Parent.SaveData()
 		playerObject.OnlineLabel.Text = loginText
 		playerObject.OnlineLabel.Refresh()
 		handler.playerList.ReloadList()
-		fmt.Println(handler.getSleepTime().Milliseconds())
 		time.Sleep(handler.getSleepTime())
 		handler.playerIndex++
 		if handler.playerIndex >= len(handler.data.Players) {

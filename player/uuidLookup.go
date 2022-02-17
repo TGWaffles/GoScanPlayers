@@ -31,7 +31,7 @@ func LookupUUIDs(uuids []string) *UuidLookup {
 	if err != nil {
 		log.Fatal(err)
 	}
-	resp, err := http.Post(ApiUrl + "/bulk_uuids", "application/json", bytes.NewReader(postData))
+	resp, err := http.Post(ApiUrl+"/bulk_uuids", "application/json", bytes.NewReader(postData))
 	object := &UuidLookup{}
 	if err != nil {
 		log.Fatal(err)
@@ -44,12 +44,17 @@ func LookupUUIDs(uuids []string) *UuidLookup {
 	return object
 }
 
+func LookupSingularUUID(uuid string) string {
+	data := LookupUUIDs([]string{uuid})
+	return data.Uuids[uuid]
+}
+
 func LookupUsernames(usernames []string) *UsernameLookup {
 	postData, err := json.Marshal(UsernamePostReq{Usernames: usernames})
 	if err != nil {
 		log.Fatal(err)
 	}
-	resp, err := http.Post(ApiUrl + "/bulk_usernames", "application/json", bytes.NewReader(postData))
+	resp, err := http.Post(ApiUrl+"/bulk_usernames", "application/json", bytes.NewReader(postData))
 	object := &UsernameLookup{}
 	if err != nil {
 		log.Fatal(err)
@@ -61,4 +66,3 @@ func LookupUsernames(usernames []string) *UsernameLookup {
 	err = json.Unmarshal(data, object)
 	return object
 }
-

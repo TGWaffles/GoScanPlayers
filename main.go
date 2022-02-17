@@ -24,35 +24,31 @@ func main() {
 		apiKeyEntry.Text = data.ApiKey
 	}
 	hypixelLookupChecker := hypixel.New(data, playerList)
-	apiKeyEntry.OnSubmitted = func(s string) {
-		data.ApiKey = s
-		storageHandler.SaveData()
-		hypixelLookupChecker.ApiKeyUpdated()
-	}
 	webhookMessage := widget.NewEntry()
 	webhookMessage.SetPlaceHolder("Discord Webhook Message Content")
 	if data.WebhookContent != "" {
 		webhookMessage.Text = data.WebhookContent
-	}
-	webhookMessage.OnSubmitted = func(s string) {
-		data.WebhookContent = s
-		storageHandler.SaveData()
 	}
 	webhookUrl := widget.NewEntry()
 	webhookUrl.SetPlaceHolder("Discord Webhook URL")
 	if data.WebhookUrl != "" {
 		webhookUrl.Text = data.WebhookUrl
 	}
-	webhookMessage.OnSubmitted = func(s string) {
-		data.WebhookUrl = s
+
+	saveConfigButton := widget.NewButton("Save Config", func() {
+		data.WebhookUrl = webhookUrl.Text
+		data.WebhookContent = webhookMessage.Text
+		data.ApiKey = apiKeyEntry.Text
 		storageHandler.SaveData()
-	}
+		hypixelLookupChecker.ApiKeyUpdated()
+	})
 
 	masterConfig := container.NewVBox(
 		widget.NewLabel("Player Scanner: Config"),
 		apiKeyEntry,
 		webhookUrl,
 		webhookMessage,
+		saveConfigButton,
 	)
 
 	playerNameEntry := widget.NewEntry()
