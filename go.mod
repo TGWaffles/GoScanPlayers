@@ -1,4 +1,4 @@
-module tests
+module GoScanPlayers
 
 go 1.17
 

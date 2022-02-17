@@ -1,13 +1,13 @@
 package main
 
 import (
+	"GoScanPlayers/player"
+	"GoScanPlayers/storage"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
 	"log"
-	"tests/player"
-	"tests/storage"
 )
 
 func main() {

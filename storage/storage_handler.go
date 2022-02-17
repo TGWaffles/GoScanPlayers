@@ -1,25 +1,25 @@
 package storage
 
 import (
+	"GoScanPlayers/models"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"strings"
-	"tests/models"
 )
 
 type Handler struct {
 	fileName string
-	data *Data
+	data     *Data
 }
 
 type Data struct {
-	UpdateFrequency int `json:"updateFrequency"`
+	UpdateFrequency      int  `json:"updateFrequency"`
 	EnableSkyblockLookup bool `json:"enableSkyblock"`
 
-	ApiKey string `json:"apiKey"`
-	WebhookUrl string `json:"webhookUrl"`
+	ApiKey         string `json:"apiKey"`
+	WebhookUrl     string `json:"webhookUrl"`
 	WebhookContent string `json:"webhookContent"`
 
 	Players []models.Player `json:"players"`

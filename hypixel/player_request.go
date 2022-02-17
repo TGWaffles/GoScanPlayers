@@ -1,22 +1,22 @@
 package hypixel
 
 import (
+	"GoScanPlayers/storage"
 	"encoding/json"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"strconv"
-	"tests/storage"
 	"time"
 )
 
 const ApiUrl = "https://api.hypixel.net"
 
 type RequestMaker struct {
-	isRateLimited bool
+	isRateLimited      bool
 	keyIsValid         bool
 	rateLimitResetTime time.Time
-	data *storage.Data
+	data               *storage.Data
 }
 
 func New(data *storage.Data) *RequestMaker {
@@ -35,18 +35,17 @@ func (handler *RequestMaker) updatePlayersLoop() {
 }
 
 type StatusRequestResponse struct {
-	Success bool `json:"success"`
-	Cause string `json:"cause"`
-	Uuid string `json:"uuid"`
+	Success bool            `json:"success"`
+	Cause   string          `json:"cause"`
+	Uuid    string          `json:"uuid"`
 	Session SessionResponse `json:"session"`
 }
 
 type SessionResponse struct {
-	Online bool `json:"online"`
+	Online   bool   `json:"online"`
 	GameType string `json:"gameType"`
-	Mode string `json:"mode"`
+	Mode     string `json:"mode"`
 }
-
 
 func (handler *RequestMaker) CheckPlayerOnline(uuid string, apiKey string) string {
 	resp, err := http.Get(ApiUrl + "/status?uuid=" + uuid + "&key=" + apiKey)

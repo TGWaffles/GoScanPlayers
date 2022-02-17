@@ -1,20 +1,19 @@
 package player
 
 import (
+	"GoScanPlayers/models"
+	"GoScanPlayers/storage"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
-	"tests/models"
-	"tests/storage"
 )
 
-
 type ListHandler struct {
-	index int
-	data *storage.Data
+	index  int
+	data   *storage.Data
 	window fyne.Window
-	List *widget.List
-	uuids map[string]string
+	List   *widget.List
+	uuids  map[string]string
 	master *fyne.Container
 }
 
@@ -44,7 +43,7 @@ func (handler *ListHandler) getNextItem() fyne.CanvasObject {
 		nil,
 		nil,
 		nameWithNote,
-		widget.NewButton("x", func () {
+		widget.NewButton("x", func() {
 			handler.index = 0
 			handler.removePlayer(playerUuid)
 			handler.List.Refresh()
@@ -74,8 +73,8 @@ func (handler *ListHandler) refreshUuids() {
 
 func GeneratePlayerList(data *storage.Data, window fyne.Window) *ListHandler {
 	handler := &ListHandler{
-		index: 0,
-		data: data,
+		index:  0,
+		data:   data,
 		window: window,
 	}
 	handler.refreshUuids()
