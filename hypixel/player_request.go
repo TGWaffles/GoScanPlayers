@@ -1,8 +1,10 @@
 package hypixel
 
 import (
+	"GoScanPlayers/player"
 	"GoScanPlayers/storage"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -17,21 +19,49 @@ type RequestMaker struct {
 	keyIsValid         bool
 	rateLimitResetTime time.Time
 	data               *storage.Data
+	playerIndex        int
+	playerList         *player.ListHandler
 }
 
-func New(data *storage.Data) *RequestMaker {
+func New(data *storage.Data, list *player.ListHandler) *RequestMaker {
 	handler := &RequestMaker{
 		isRateLimited:      false,
 		keyIsValid:         true,
 		rateLimitResetTime: time.Now(),
 		data:               data,
+		playerIndex:        0,
+		playerList:         list,
 	}
-	handler.updatePlayersLoop()
+	go handler.updatePlayersLoop()
 	return handler
 }
 
-func (handler *RequestMaker) updatePlayersLoop() {
+func (handler *RequestMaker) getSleepTime() time.Duration {
+	// Refresh every .6s, taking 100 req/min
+	return 600 * time.Millisecond
+}
 
+func (handler *RequestMaker) updatePlayersLoop() {
+	time.Sleep(5 * time.Second)
+	for {
+		for !handler.keyIsValid || len(handler.data.Players) == 0 {
+			time.Sleep(5 * time.Second)
+		}
+		playerObject := handler.data.Players[handler.playerIndex]
+		loginText := handler.CheckPlayerOnline(playerObject.Uuid, handler.data.ApiKey)
+		playerObject.OnlineStatus = loginText
+		playerObject.IsOnline = loginText[:6] == "ONLINE"
+		handler.data.Parent.SaveData()
+		playerObject.OnlineLabel.Text = loginText
+		playerObject.OnlineLabel.Refresh()
+		handler.playerList.ReloadList()
+		fmt.Println(handler.getSleepTime().Milliseconds())
+		time.Sleep(handler.getSleepTime())
+		handler.playerIndex++
+		if handler.playerIndex >= len(handler.data.Players) {
+			handler.playerIndex = 0
+		}
+	}
 }
 
 type StatusRequestResponse struct {
@@ -85,4 +115,8 @@ func (handler *RequestMaker) CheckPlayerOnline(uuid string, apiKey string) strin
 	} else {
 		return "OFFLINE"
 	}
+}
+
+func (handler *RequestMaker) ApiKeyUpdated() {
+	handler.keyIsValid = true
 }

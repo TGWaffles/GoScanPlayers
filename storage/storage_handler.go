@@ -22,7 +22,8 @@ type Data struct {
 	WebhookUrl     string `json:"webhookUrl"`
 	WebhookContent string `json:"webhookContent"`
 
-	Players []models.Player `json:"players"`
+	Players []*models.Player `json:"players"`
+	Parent  *Handler
 }
 
 func New() *Handler {
@@ -47,7 +48,7 @@ func (handler *Handler) loadData() *Data {
 		}
 		log.Fatal(err)
 	}
-	data := &Data{}
+	data := &Data{Parent: handler}
 	err = json.Unmarshal(byteData, data)
 	if err != nil {
 		log.Fatal(err)
@@ -61,12 +62,13 @@ func (handler *Handler) createFile() {
 		EnableSkyblockLookup: true,
 		WebhookUrl:           "",
 		WebhookContent:       "",
-		Players:              make([]models.Player, 0),
+		Players:              make([]*models.Player, 0),
+		Parent:               handler,
 	}
-	handler.saveData()
+	handler.SaveData()
 }
 
-func (handler *Handler) saveData() {
+func (handler *Handler) SaveData() {
 	data, err := json.Marshal(handler.data)
 	if err != nil {
 		log.Fatal(err)

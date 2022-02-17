@@ -36,7 +36,7 @@ func (handler *ListHandler) getNextItem() fyne.CanvasObject {
 		playerNameLabel,
 		playerNoteLabel,
 	)
-	onlineStatus := widget.NewLabel("OFFLINE")
+	onlineStatus := widget.NewLabel(player.OnlineStatus)
 	onlineStatus.Alignment = fyne.TextAlignCenter
 	player.OnlineLabel = onlineStatus
 	return container.NewBorder(
@@ -46,15 +46,14 @@ func (handler *ListHandler) getNextItem() fyne.CanvasObject {
 		widget.NewButton("x", func() {
 			handler.index = 0
 			handler.removePlayer(playerUuid)
-			handler.List.Refresh()
-			handler.window.Content().Refresh()
+			handler.ReloadList()
 		}),
 		onlineStatus,
 	)
 }
 
 func (handler *ListHandler) removePlayer(uuid string) {
-	newPlayers := make([]models.Player, 0)
+	newPlayers := make([]*models.Player, 0)
 	for _, player := range handler.data.Players {
 		if player.Uuid != uuid {
 			newPlayers = append(newPlayers, player)
@@ -107,21 +106,26 @@ func (handler *ListHandler) SetMaster(master *fyne.Container) {
 	handler.master = master
 }
 
-func (handler *ListHandler) AddPlayer(username string, note string, window fyne.Window) {
+func (handler *ListHandler) AddPlayer(username string, note string) {
 	usernames := LookupUsernames([]string{username})
 	if usernames.Usernames[username] == "" || usernames.Usernames[username] == "Unknown Player" {
-		popUp := widget.NewPopUp(widget.NewLabel("Invalid Username!"), window.Canvas())
+		popUp := widget.NewPopUp(widget.NewLabel("Invalid Username!"), handler.window.Canvas())
 		popUp.Show()
 		return
 	}
-	player := models.Player{
+	player := &models.Player{
 		Uuid:          usernames.Usernames[username],
 		Note:          note,
 		IsOnline:      false,
 		HasApiEnabled: true,
+		OnlineStatus:  "NOT CHECKED",
 	}
 	handler.data.Players = append(handler.data.Players, player)
 	handler.refreshUuids()
+	handler.ReloadList()
+}
+
+func (handler *ListHandler) ReloadList() {
 	handler.index = len(handler.data.Players) - 1
 	for index, element := range handler.master.Objects {
 		if element == handler.List {
