@@ -7,14 +7,16 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
+	"strconv"
 )
 
 type ListHandler struct {
-	data   *storage.Data
-	window fyne.Window
-	List   *widget.List
-	uuids  map[string]string
-	master *fyne.Container
+	data          *storage.Data
+	window        fyne.Window
+	List          *widget.List
+	uuids         map[string]string
+	master        *fyne.Container
+	changeWatcher *widget.Label
 }
 
 func (handler *ListHandler) createBlankItem() fyne.CanvasObject {
@@ -58,6 +60,7 @@ func (handler *ListHandler) removePlayer(uuid string) {
 		}
 	}
 	handler.data.Players = newPlayers
+	handler.OnLengthChange()
 }
 
 func (handler *ListHandler) refreshUuids() {
@@ -128,9 +131,21 @@ func (handler *ListHandler) AddPlayer(username string, note string) {
 	handler.data.Players = append(handler.data.Players, player)
 	handler.refreshUuids()
 	handler.ReloadList()
+	handler.OnLengthChange()
 }
 
 func (handler *ListHandler) ReloadList() {
 	handler.List.Refresh()
 	handler.window.Content().Refresh()
+}
+
+func (handler *ListHandler) WatchLengthChange(label *widget.Label) {
+	handler.changeWatcher = label
+}
+
+func (handler *ListHandler) OnLengthChange() {
+	if handler.changeWatcher != nil {
+		handler.changeWatcher.SetText(strconv.Itoa(len(handler.data.Players)))
+		handler.changeWatcher.Refresh()
+	}
 }

@@ -9,6 +9,7 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
 	"log"
+	"strconv"
 )
 
 func main() {
@@ -64,10 +65,17 @@ func main() {
 		storageHandler.SaveData()
 	})
 
+	playerCountLabel := widget.NewLabel(strconv.Itoa(len(data.Players)))
+	playerCountText := container.NewHBox(
+		widget.NewLabel("Players Tracking: "),
+		playerCountLabel,
+	)
+
 	playerInput := container.NewVBox(
 		playerNameEntry,
 		playerNoteEntry,
 		playerNameConfirm,
+		playerCountText,
 	)
 
 	master := container.NewGridWithRows(3,
@@ -75,7 +83,7 @@ func main() {
 		playerInput,
 		playerList.List,
 	)
-
+	playerList.WatchLengthChange(playerCountLabel)
 	playerList.SetMaster(master)
 
 	w.SetContent(master)

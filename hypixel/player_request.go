@@ -49,11 +49,15 @@ func (handler *RequestMaker) updatePlayersLoop() {
 		}
 		playerObject := handler.data.Players[handler.playerIndex]
 		loginText := handler.CheckPlayerOnline(playerObject.Uuid, handler.data.ApiKey)
-		if playerObject.OnlineStatus != loginText {
+		if playerObject.LastSuccessfulStatus != loginText {
 			playerObject.OnlineStatus = loginText
 			playerObject.IsOnline = loginText[:6] == "ONLINE"
 			if loginText != "RATE LIMITED" {
 				go webhook.PostDataToURL(handler.data.WebhookUrl, handler.data.WebhookContent, playerObject)
+			}
+
+			if loginText[:6] == "ONLINE" || loginText[:7] == "OFFLINE" {
+				playerObject.LastSuccessfulStatus = loginText
 			}
 		}
 		handler.data.Parent.SaveData()
