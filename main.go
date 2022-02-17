@@ -56,10 +56,11 @@ func main() {
 	playerNoteEntry := widget.NewEntry()
 	playerNoteEntry.SetPlaceHolder("Player Note...")
 	playerNameConfirm := widget.NewButton("Add Player", func() {
-		playerList.AddPlayer(playerNameEntry.Text, playerNoteEntry.Text)
+		go playerList.AddPlayer(playerNameEntry.Text, playerNoteEntry.Text)
 		playerNameEntry.Text = ""
 		playerNoteEntry.Text = ""
 		playerNameEntry.Refresh()
+		playerNoteEntry.Refresh()
 		storageHandler.SaveData()
 	})
 
