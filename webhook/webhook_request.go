@@ -17,7 +17,7 @@ type PostData struct {
 	AvatarUrl string         `json:"avatar_url"`
 }
 
-func PostDataToURL(webhookUrl string, webhookContent string, player *models.Player) {
+func PostDataToURL(webhookUrl string, webhookContent string, player *models.Player, lastSuccessfulStatus string) {
 	username := playerLib.LookupSingularUUID(player.Uuid)
 	onlineText := "ONLINE"
 	colour := 0x00FF00
@@ -28,6 +28,11 @@ func PostDataToURL(webhookUrl string, webhookContent string, player *models.Play
 	var fields []models.Field
 	if player.Note != "" {
 		fields = []models.Field{
+			{
+				Name:   "Last Known Status",
+				Value:  "Last known status: " + lastSuccessfulStatus,
+				Inline: false,
+			},
 			{
 				Name:   "Note",
 				Value:  player.Note,
