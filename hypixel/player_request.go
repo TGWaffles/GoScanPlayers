@@ -113,7 +113,9 @@ func (handler *RequestMaker) CheckPlayerOnline(uuid string, apiKey string) strin
 	}
 	err = json.Unmarshal(byteData, data)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		log.Println("error unmarshalling json")
+		return handler.CheckPlayerOnline(uuid, apiKey)
 	}
 	if !data.Success {
 		return data.Cause
