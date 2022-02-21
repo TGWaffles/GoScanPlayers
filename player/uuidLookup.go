@@ -34,7 +34,9 @@ func LookupUUIDs(uuids []string) *UuidLookup {
 	resp, err := http.Post(ApiUrl+"/bulk_uuids", "application/json", bytes.NewReader(postData))
 	object := &UuidLookup{}
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		log.Println("^ error getting UUIDs")
+		return LookupUUIDs(uuids)
 	}
 	data, err := ioutil.ReadAll(resp.Body)
 	if err != nil {

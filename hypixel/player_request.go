@@ -88,7 +88,9 @@ type SessionResponse struct {
 func (handler *RequestMaker) CheckPlayerOnline(uuid string, apiKey string) string {
 	resp, err := http.Get(ApiUrl + "/status?uuid=" + uuid + "&key=" + apiKey)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		log.Println("error fetching data from hypixel")
+		return handler.CheckPlayerOnline(uuid, apiKey)
 	}
 	if resp.StatusCode == 403 {
 		handler.keyIsValid = false
