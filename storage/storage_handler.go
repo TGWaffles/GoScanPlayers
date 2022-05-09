@@ -23,7 +23,7 @@ type Data struct {
 	WebhookContent string `json:"webhookContent"`
 
 	Players []*models.Player `json:"players"`
-	Parent  *Handler
+	Parent  *Handler         `json:"-"`
 }
 
 func New() *Handler {
